@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.10/css/all.css">
+    <link rel="stylesheet" href="https://cdn.rawgit.com/balzss/luxbar/ae5835e2/build/luxbar.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+    <link rel="stylesheet" href="./css/semantic.min.css" />
+
+
+    <style>
+        .ui.container {
+            padding-top: 80px;
+            padding-bottom: 80px;
+        }
+
+        #market .image {
+            height: 25vh;
+        }
+
+        #market-detail .image {
+            max-height: 60vh;
+        }     
+          
+        #sell .column {
+            max-width: 800px;
+        }
+
+        #sell .image {
+            height:60vh
+        }
+
+        img {
+            width:100% !important;
+            height: 100% !important;
+            object-fit: cover;
+        }
+
+    </style>
+
+    <title>NFTS</title>
+</head>
+
+<body>
+
+    <div id="app">
+        <header id="luxbar" class="luxbar-fixed">
+            <input type="checkbox" class="luxbar-checkbox" id="luxbar-checkbox" />
+            <div class="luxbar-menu luxbar-menu-right luxbar-menu-material-cyan">
+                <ul class="luxbar-navigation">
+                    <li class="luxbar-header">
+                        <a @click="transPage('home')" class="luxbar-brand">NFTS</a>
+                        <label class="luxbar-hamburger luxbar-hamburger-doublespin" id="luxbar-hamburger" for="luxbar-checkbox">
+                            <span></span> </label>
+                    </li>
+                    <li class="luxbar-item">
+                        <a @click="transPage('market')">Purchase</a>
+                    </li>
+                    <li class="luxbar-item">
+                        <a @click="transPage('sell')">Sell</a>
+                    </li>
+                </ul>
+            </div>
+        </header>
+
+        <div id="home" v-if="currentPage == 'home'">
+            <div class="ui inverted vertical">
+                Ethereum NFT Marketplase and Exchange
+            </div>
+        </div>
+
+        <div id="market" v-if="currentPage == 'market'">
+            <div class="ui container">
+                <div class="ui four stackable doubling cards">
+                    <a class="ui card" v-for="market in markets" @click="transPage('market-detail', market.index)">
+                        <div class="image">
+                            <img :src="market.imageUrl">
+                        </div>
+                        <div class="content">
+                            <div class="header">Theming</div>
+                            <div class="description">
+                                Examples of many common UI components.
+                            </div>
+                        </div>
+                    </a>
+
+                </div>
+            </div>
+        </div>
+
+        <div id="market-detail" v-if="currentPage == 'market-detail'">
+            <div class="ui container">
+                <div class="ui two column stackable grid">
+                    <div class="ui column">
+                        <div class="image">
+                            <img :src="markets[index].imageUrl">
+                        </div>
+                    </div>
+                    <div class="ui column">
+                        <div class="container">
+                            <h2 class="ui header">
+                                {{markets[index].name}}
+                            </h2>
+                            <p class="ui description">
+                                0.001 ETH
+                            </p>
+                            <div class="ui blue button">
+                                Purchase
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="sell" v-if="currentPage == 'sell'">
+            <div class="ui container">
+                <div class="ui center aligned grid">
+                    <div class="column">
+                        <form class="ui form">
+                            <div class="field">
+                                <input type="text" name="contract" id-="contract" placeholder="Contract">
+                            </div>
+                            <div class="field">
+                                <input type="text" name="id" id-="id" placeholder="ID">
+                            </div>
+
+                            <div class="image">
+                                <img src="img/001.jpg">
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="./js/semantic.min.js"></script>
+    <script src="./js/app.js"></script>
+
+</body>
+
+</html>
