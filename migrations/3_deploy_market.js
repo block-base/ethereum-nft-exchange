@@ -1,7 +1,7 @@
-var SmartMarket = artifacts.require("./SmartMarket.sol");
+var Market = artifacts.require("./Market.sol");
 
-module.exports = function (deployer) {
+module.exports = async function (deployer) {
 
-    deployer.deploy(SmartMarket).then(async () => {
+    deployer.deploy(Market).then(async () => {
     });
 };

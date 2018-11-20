@@ -1,11 +1,8 @@
 pragma solidity ^0.4.23;
 
 import "./openzeppelin-solidity/contracts/token/ERC721/IERC721.sol";
-import "./openzeppelin-solidity/contracts/access/roles/SignerRole.sol";
-import "./origin/identity/ClaimVerifier.sol";
-import "./origin/identity/V00_UserRegistry.sol";
 
-contract SmartExchange is ClaimVerifier {
+contract Exchange {
 
     struct Item {
         address requester;
@@ -19,16 +16,9 @@ contract SmartExchange is ClaimVerifier {
     event Confirm(address indexed _contract, uint _tokenId);
 
     mapping (address=>mapping(uint256 => Item)) public items;
-    V00_UserRegistry userRegistry;
-
-    constructor (address _userRegistryAddress, address _kycAddress) ClaimVerifier (_kycAddress) {
-        userRegistry = V00_UserRegistry(_userRegistryAddress);
-    }
 
     function request(address _fromContract, uint _fromId, address _toContract, uint _toId) public {
         require(!items[_fromContract][_fromId].exist); 
-        require(checkClaim(ClaimHolder(userRegistry.users(msg.sender)),2));
-
         Item memory _item = Item(msg.sender, _toContract, _toId, true);
         items[_fromContract][_fromId] = _item;
         IERC721(_fromContract).transferFrom(msg.sender, address(this), _fromId);
@@ -45,8 +35,6 @@ contract SmartExchange is ClaimVerifier {
 
     function confirm(address _fromContract, uint256 _fromId) public {
         require(items[_fromContract][_fromId].exist); 
-        require(checkClaim(ClaimHolder(userRegistry.users(msg.sender)),2));
-        
         Item memory _item = items[_fromContract][_fromId];
         IERC721(_item.toContract).transferFrom(msg.sender, _item.requester, _item.toId);
         IERC721(_fromContract).transferFrom(address(this), msg.sender, _fromId);

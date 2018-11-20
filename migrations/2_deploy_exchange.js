@@ -1,7 +1,7 @@
-var SmartExchange = artifacts.require("./SmartExchange.sol");
+var Exchange = artifacts.require("./Exchange.sol");
 
-module.exports = function (deployer) {
+module.exports = async function (deployer) {
 
-    deployer.deploy(SmartExchange).then(async () => {
+    deployer.deploy(Exchange).then(async () => {
     });
 };

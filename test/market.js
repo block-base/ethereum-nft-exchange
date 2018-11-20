@@ -1,5 +1,5 @@
 var TestToken = artifacts.require('TestToken')
-var SmartMarket = artifacts.require('SmartMarket')
+var Market = artifacts.require('Market')
 
 contract('Market', async function(accounts) {
   
@@ -15,7 +15,7 @@ contract('Market', async function(accounts) {
     })
 
     it('sell', async function() {
-        smartMarket = await SmartMarket.deployed();
+        smartMarket = await Market.deployed();
         await testToken.approve(smartMarket.address, ID);
         await smartMarket.sell(testToken.address, ID, PRICE);
         items =  await smartMarket.items(testToken.address, ID)
@@ -26,13 +26,13 @@ contract('Market', async function(accounts) {
     })    
 
     it('purchase', async function() {
-        smartMarket = await SmartMarket.deployed();
+        smartMarket = await Market.deployed();
         await smartMarket.purchase(testToken.address, ID, {from: accounts[1], value: PRICE});
         assert.equal(await testToken.ownerOf(ID), accounts[1]);
     })    
 
     it('cancel', async function() {
-        smartMarket = await SmartMarket.deployed();
+        smartMarket = await Market.deployed();
         await testToken.approve(smartMarket.address, ID, {from: accounts[1]});
         await smartMarket.sell(testToken.address, ID, PRICE, {from: accounts[1]});
         await smartMarket.cancel(testToken.address, ID, {from: accounts[1]});

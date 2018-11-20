@@ -1,5 +1,5 @@
 var TestToken = artifacts.require('TestToken')
-var SmartExchange = artifacts.require('SmartExchange')
+var Exchange = artifacts.require('Exchange')
 
 contract('Exchange', async function (accounts) {
 
@@ -23,7 +23,7 @@ contract('Exchange', async function (accounts) {
     })
 
     it('request', async function () {
-        smartExchange = await SmartExchange.deployed();
+        smartExchange = await Exchange.deployed();
         await testToken1.approve(smartExchange.address, ID);
         await smartExchange.request(testToken1.address, ID, testToken2.address, ID);
 
@@ -36,7 +36,7 @@ contract('Exchange', async function (accounts) {
     })
 
     it('confirm', async function () {
-        smartExchange = await SmartExchange.deployed();
+        smartExchange = await Exchange.deployed();
         await testToken2.approve(smartExchange.address, ID, { from: accounts[1] });
         await smartExchange.confirm(testToken1.address, ID, { from: accounts[1] });
         assert.equal(await testToken1.ownerOf(ID), accounts[1]);
@@ -44,7 +44,7 @@ contract('Exchange', async function (accounts) {
     })
 
     it('cancel', async function () {
-        smartExchange = await SmartExchange.deployed();
+        smartExchange = await Exchange.deployed();
         await testToken2.approve(smartExchange.address, ID);
         await smartExchange.request(testToken2.address, ID, testToken1.address, ID);
         await smartExchange.cancel(testToken2.address, ID);

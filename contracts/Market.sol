@@ -1,11 +1,8 @@
 pragma solidity ^0.4.23;
 
 import "./openzeppelin-solidity/contracts/token/ERC721/IERC721.sol";
-import "./openzeppelin-solidity/contracts/access/roles/SignerRole.sol";
-import "./origin/identity/ClaimVerifier.sol";
-import "./origin/identity/V00_UserRegistry.sol";
 
-contract SmartMarket is ClaimVerifier {
+contract Market {
 
     struct Item {
         address seller;
@@ -18,16 +15,9 @@ contract SmartMarket is ClaimVerifier {
     event Purchase(address indexed _contract, uint _tokenId);
 
     mapping (address=>mapping(uint => Item)) public items;
-    V00_UserRegistry userRegistry;
-
-    constructor (address _userRegistryAddress, address _kycAddress) ClaimVerifier (_kycAddress) {
-        userRegistry = V00_UserRegistry(_userRegistryAddress);
-    }
 
     function sell(address _contract, uint _tokenId, uint128 _price) public {
         require(!items[_contract][_tokenId].exist);
-        require(checkClaim(ClaimHolder(userRegistry.users(msg.sender)),1));
-
         Item memory _item = Item(msg.sender, _price, true);
         items[_contract][_tokenId] = _item;
         IERC721(_contract).transferFrom(msg.sender, address(this), _tokenId);
@@ -37,7 +27,6 @@ contract SmartMarket is ClaimVerifier {
     function cancel(address _contract, uint _tokenId) public {
         require(items[_contract][_tokenId].exist);
         require(items[_contract][_tokenId].seller == msg.sender);
-
         IERC721(_contract).transferFrom(address(this), msg.sender, _tokenId);
         delete items[_contract][_tokenId];
         emit Cancel(_contract, _tokenId);
@@ -47,8 +36,6 @@ contract SmartMarket is ClaimVerifier {
         require(items[_contract][_tokenId].exist);
         require(items[_contract][_tokenId].seller != msg.sender);
         require(items[_contract][_tokenId].price == msg.value);
-        require(checkClaim(ClaimHolder(userRegistry.users(msg.sender)),1));
-        
         Item memory _item = items[_contract][_tokenId];
         delete items[_contract][_tokenId];
         IERC721(_contract).transferFrom(address(this), msg.sender, _tokenId);      
