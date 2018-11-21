@@ -1,9 +1,9 @@
 pragma solidity ^0.4.23;
 
 import "./openzeppelin-solidity/contracts/token/ERC721/IERC721.sol";
-import "./openzeppelin-solidity/contracts/access/roles/SignerRole.sol";
 import "./origin/identity/ClaimVerifier.sol";
 import "./origin/identity/V00_UserRegistry.sol";
+import "./WhiteList.sol";
 
 contract SmartMarket is ClaimVerifier {
 
@@ -18,15 +18,34 @@ contract SmartMarket is ClaimVerifier {
     event Purchase(address indexed _contract, uint _tokenId);
 
     mapping (address=>mapping(uint => Item)) public items;
+
+    address smartContentsAddress;
+    WhiteList whiteList;
     V00_UserRegistry userRegistry;
 
-    constructor (address _userRegistryAddress, address _kycAddress) ClaimVerifier (_kycAddress) {
+    constructor (
+        address _whiteListAddress, 
+        address _userRegistryAddress, 
+        address _claimHolderAddress) 
+    ClaimVerifier (
+        _claimHolderAddress
+    ) {
+        whiteList = WhiteList(_whiteListAddress);
         userRegistry = V00_UserRegistry(_userRegistryAddress);
+    }
+
+    function publish(uint _tokenId, uint128 _price, address _owner) public {
+        require(msg.sender == smartContentsAddress);
+
+        Item memory _item = Item(_owner, _price, true);
+        items[smartContentsAddress][_tokenId] = _item;
+        emit Sell(smartContentsAddress, _tokenId, _price);
     }
 
     function sell(address _contract, uint _tokenId, uint128 _price) public {
         require(!items[_contract][_tokenId].exist);
-        require(checkClaim(ClaimHolder(userRegistry.users(msg.sender)),1));
+        require(checkClaim(ClaimHolder(userRegistry.users(msg.sender)),2));
+        require(whiteList.verified(_contract));
 
         Item memory _item = Item(msg.sender, _price, true);
         items[_contract][_tokenId] = _item;
@@ -47,7 +66,7 @@ contract SmartMarket is ClaimVerifier {
         require(items[_contract][_tokenId].exist);
         require(items[_contract][_tokenId].seller != msg.sender);
         require(items[_contract][_tokenId].price == msg.value);
-        require(checkClaim(ClaimHolder(userRegistry.users(msg.sender)),1));
+        require(checkClaim(ClaimHolder(userRegistry.users(msg.sender)),2));
         
         Item memory _item = items[_contract][_tokenId];
         delete items[_contract][_tokenId];
