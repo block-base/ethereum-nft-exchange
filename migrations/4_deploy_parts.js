@@ -1,5 +1,6 @@
 var { writeFileSync } = require('fs')
 
+var Integration = artifacts.require("./Integration.sol");
 var V00_UserRegistry = artifacts.require("./origin/identity/V00_UserRegistry.sol");
 var ClaimHolder = artifacts.require("./origin/identity/ClaimHolder.sol");
 var ClaimVerifier = artifacts.require("./origin/identity/ClaimVerifier.sol");
@@ -36,6 +37,8 @@ module.exports = async function (deployer) {
                 
                 await deployer.deploy(SmartExchange, whiteList.address, v00_UserRegistry.address, claimHolder.address)
                 await deployer.deploy(SmartMarket, whiteList.address, v00_UserRegistry.address, claimHolder.address)
+
+                await deployer.deploy(Integration, v00_UserRegistry.address, claimHolder.address);
 
             });
         });
