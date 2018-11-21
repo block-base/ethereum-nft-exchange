@@ -12,8 +12,8 @@
     <style>
 
         .ui.container {
-            padding-top: 100px;
-            padding-bottom: 100px;
+            padding-top: 90px;
+            padding-bottom: 90px;
         }
 
         .masthead.segment {
@@ -21,8 +21,6 @@
         }
 
         .masthead h1.ui.header {
-            margin-top: 3em;
-            margin-bottom: 0em;
             font-size: 4em;
             font-weight: normal;
         }
@@ -32,28 +30,21 @@
         }
 
         #purchase .image {
-            height: 25vh;
+            height: 40vh;
         }
 
         #purchase-detail .image {
-            height: 60vh;
+            height: 50vh;
         }     
           
         #sell .image {
-            height: 25vh;
+            height: 40vh;
         }
 
         #sell-detail .image {
-            height: 60vh;
+            height: 50vh;
         }     
-
-        #sell-detail .card {
-             height:100%;
-        }
-
-        #purchase-detail .card {
-             height:100%;
-        }        
+     
 
         img {
             width:100% !important;
@@ -120,7 +111,7 @@
                                 <label>I agree to the terms of service</label>
                             </div>
                         </div>
-                        <div id="confirm" class="fluid ui teal button">Register</div>
+                        <div id="confirm" class="fluid ui teal button" @click="register()">Register</div>
                     </form>
 
                 </div>
@@ -149,7 +140,7 @@
                                 ETH
                             </div>
                         </div>
-                        <div id="confirm" class="fluid ui teal button">Publish</div>
+                        <div id="confirm" class="fluid ui teal button" @click="publish()">Publish</div>
                     </form>
                 </div>
             </div>
@@ -157,16 +148,10 @@
 
         <div id="purchase" v-if="currentPage == 'purchase'">
             <div class="ui container">
-                <div class="ui four stackable doubling cards">
+                <div class="ui three stackable doubling cards">
                     <a class="ui card" v-for="purchase in purchases" @click="transPage('purchase-detail', purchase.index)">
                         <div class="image">
-                            <img :src="purchase.imageUrl">
-                        </div>
-                        <div class="content">
-                            <div class="header">Theming</div>
-                            <div class="description">
-                                Examples of many common UI components.
-                            </div>
+                            <img :src="purchase.image">
                         </div>
                     </a>
                 </div>
@@ -178,47 +163,26 @@
                 <div class="ui two column stackable grid">
                     <div class="ui column">
                         <div class="image">
-                            <img :src="sells[index].imageUrl">
+                            <img :src="sells[index].image">
                         </div>
                     </div>
                     <div class="ui column">
                         <div class="ui fluid card">
                             <div class="content">
                                 <div class="header">{{purchases[index].name}}</div>
-                                <h4 class="ui sub header">ID:</h4>
                                 <div class="ui small feed">
-                                    <div class="event">
-                                        <div class="content">
-                                            <div class="summary">
-                                                <a>Elliot Fu</a> added <a>Jenny Hess</a> to the project
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="event">
-                                        <div class="content">
-                                            <div class="summary">
-                                                <a>Stevie Feliciano</a> was added as an <a>Administrator</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="event">
-                                        <div class="content">
-                                            <div class="summary">
-                                                <a>Helen Troy</a> added two pictures
-                                            </div>
-                                        </div>
+                                    <div class="content">
+                                        {{purchases[index].description}}
                                     </div>
                                 </div>
                             </div>
                             <div class="extra content">
                                 <form class="ui form" name="form">
-
                                     <div class="field">
-                                        1.5 ETH
+                                        {{purchases[index].price}} ETH
                                     </div>
-
                                     <div class="field">
-                                        <button class="ui teal button">Purchase</button>
+                                        <button class="ui teal button" type="button" @click="purchase(purchases[index].id)">Purchase</button>
                                     </div>
                                 </form>
                             </div>
@@ -231,20 +195,13 @@
 
         <div id="sell" v-if="currentPage == 'sell'">
             <div class="ui container">
-                <div class="ui four stackable doubling cards">
+                <div class="ui three stackable doubling cards">
                     <a class="ui card" v-for="sell in sells" @click="transPage('sell-detail', sell.index)">
                         <div class="image">
-                            <img :src="sell.imageUrl">
-                        </div>
-                        <div class="content">
-                            <div class="header">Theming</div>
-                            <div class="description">
-                                Examples of many common UI components.
-                            </div>
+                            <img :src="sell.image">
                         </div>
                     </a>
                 </div>
-
             </div>
         </div>
 
@@ -253,35 +210,16 @@
                 <div class="ui two column stackable grid">
                     <div class="ui column">
                         <div class="image">
-                            <img :src="sells[index].imageUrl">
+                            <img :src="sells[index].image">
                         </div>
                     </div>
                     <div class="ui column">
                         <div class="ui fluid card">
                             <div class="content">
                                 <div class="header">{{sells[index].name}}</div>
-                                <h4 class="ui sub header">ID:</h4>
                                 <div class="ui small feed">
-                                    <div class="event">
-                                        <div class="content">
-                                            <div class="summary">
-                                                <a>Elliot Fu</a> added <a>Jenny Hess</a> to the project
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="event">
-                                        <div class="content">
-                                            <div class="summary">
-                                                <a>Stevie Feliciano</a> was added as an <a>Administrator</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="event">
-                                        <div class="content">
-                                            <div class="summary">
-                                                <a>Helen Troy</a> added two pictures
-                                            </div>
-                                        </div>
+                                    <div class="content">
+                                        {{sells[index].description}}
                                     </div>
                                 </div>
                             </div>
@@ -294,7 +232,7 @@
                                         </div>
                                     </div>
                                     <div class="field">
-                                        <button class="ui teal button">Sell</button>
+                                        <button class="ui teal button" type="button" @click="sell(sells[index].id)">Sell</button>
                                     </div>
                                 </form>
                             </div>
@@ -316,7 +254,10 @@
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
     <script src="./semantic/semantic.min.js"></script>
+　   
+
     <script>
+
         var app = new Vue({
             el: '#app',
             data() {
@@ -331,18 +272,37 @@
             methods: {
                 transPage: function (page, index) {
                     this.currentPage = page;
-                    this.index = index - 1;
+                    this.index = index;
+                },
+
+                register: function register() {
+                    console.log("register")
+                },
+
+                publish: function publish() {
+                    console.log("publish")
+                },
+
+                purchase: function purchase(id) {
+                    console.log("purchase: " + id)
+                },
+
+                sell: function sell(id) {
+                    console.log("sell: " + id)
                 }
+
             },
             mounted() {
                 axios
-                    .get('https://ethereum-nft-exchange.glitch.me/dac')
+                    .get('https://smartcontents.glitch.me/market')
                     .then(response => (
                         this.purchases = response.data,
                         this.sells = response.data
                     ))
             }
         })
+
+
 
     </script>
 </body>
