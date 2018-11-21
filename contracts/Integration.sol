@@ -8,6 +8,8 @@ import "./SmartMarket.sol";
 contract Integration is ERC721Full, ClaimVerifier {
 
     struct Token {
+        string title;
+        string description;
         string content;
         address publisher;
     }
@@ -58,12 +60,12 @@ contract Integration is ERC721Full, ClaimVerifier {
         return contentToTokenId[_content];
     }
 
-    function mint(string _content, uint128 _price) public payable {
+    function mint(string _title, string _description, string _content, uint128 _price) public payable {
         require(msg.value == mintingFee);
         require(contentToTokenId[_content] == 0);
-        require(checkClaim(ClaimHolder(userRegistry.users(msg.sender)),1));
+        //require(checkClaim(ClaimHolder(userRegistry.users(msg.sender)),1));
 
-        Token memory _token = Token({content: _content, publisher: msg.sender});
+        Token memory _token = Token({title: _title, description:_description, content: _content, publisher: msg.sender});
 
         uint _tokenId = tokens.push(_token) - 1;
         contentToTokenId[_content] = _tokenId;
@@ -141,6 +143,12 @@ contract Integration is ERC721Full, ClaimVerifier {
         delete exchanges[_fromId];
         emit Confirm(_fromId);
     }
+
+    function ownedTokens(address _address) public returns (uint[]) {
+        return _ownedTokens[_address];
+    }
+
+
 
     function tokenURI(uint _tokenId) external view returns (string) {
         bytes32 tokenIdBytes;

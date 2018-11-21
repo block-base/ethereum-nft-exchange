@@ -21,26 +21,24 @@ writeFileSync('../signer_priv_key', signerPrivKey)
 module.exports = async function (deployer) {
     await deployer.deploy(V00_UserRegistry).then(async () => {
         await deployer.deploy(ClaimHolder).then(async () => {
-            await deployer.deploy(WhiteList).then(async () => {
+
                 var v00_UserRegistry = await V00_UserRegistry.deployed()
                 var claimHolder = await ClaimHolder.deployed()
-                var whiteList = await WhiteList.deployed();
-
                 var signerKey = Web3Utils.soliditySha3(signerAddress)
+
                 await claimHolder.addKey(signerKey, 3, 1)
-
-                await deployer.deploy(ClaimVerifier, claimHolder.address)
-                await deployer.deploy(SmartContents, v00_UserRegistry.address, claimHolder.address)
-
-                var smartContents = await SmartContents.deployed()
-                await whiteList.addWhiteList(smartContents.address);
-                
-                await deployer.deploy(SmartExchange, whiteList.address, v00_UserRegistry.address, claimHolder.address)
-                await deployer.deploy(SmartMarket, whiteList.address, v00_UserRegistry.address, claimHolder.address)
-
                 await deployer.deploy(Integration, v00_UserRegistry.address, claimHolder.address);
+                var integration = await Integration.deployed();
 
-            });
+                await integration.mint("1", "test1", "Qmaurc3QCxriNbozR5LPQ3aJHd4qrbjiVxvvoLJtj8AeNQ", 100)
+                await integration.mint("2", "test2", "QmWMSuErBER8n2maYFdM74XaFHMt4xNKR3crhsgkYzXVLv", 100)
+                await integration.mint("3", "test3", "QmUJPnD1hC9MDp1NCS1vrwuXbjJhyRKExsTP1sPtjgfmbF", 100)
+                await integration.mint("4", "test4", "QmXzePSRPtLpGm21BrnmcKTyWDywf36dFDePwYrk124vw8", 100)
+                await integration.mint("5", "test5", "QmZpinRSyjuVHQhMDPiG4jAe9m5Xginr4xZBgZydfXyffm", 100)
+                await integration.mint("6", "test6", "QmXXjXomp6zRSn23yXZkTCFVkF6h4UyS1Yvmpao5dawnL1", 100)
+                await integration.mint("7", "test7", "Qmf1bp57pFNtdKLjyrGaQMybjapbLWR2KzGezdZzySWE5w", 100)
+                await integration.mint("8", "test8", "QmTk8BhgE3WaeBE7aD7DWy7VmjbKuSiJFaj9kQLjrPdjot", 100)
+
         });
     });
 };

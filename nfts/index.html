@@ -10,9 +10,25 @@
     <link rel="stylesheet" href="./semantic/semantic.min.css" />
 
     <style>
+
         .ui.container {
-            padding-top: 80px;
-            padding-bottom: 80px;
+            padding-top: 100px;
+            padding-bottom: 100px;
+        }
+
+        .masthead.segment {
+            height: 100vh;
+        }
+
+        .masthead h1.ui.header {
+            margin-top: 3em;
+            margin-bottom: 0em;
+            font-size: 4em;
+            font-weight: normal;
+        }
+        .masthead h2 {
+            font-size: 1.7em;
+            font-weight: normal;
         }
 
         #purchase .image {
@@ -30,7 +46,15 @@
         #sell-detail .image {
             height: 60vh;
         }     
-          
+
+        #sell-detail .card {
+             height:100%;
+        }
+
+        #purchase-detail .card {
+             height:100%;
+        }        
+
         img {
             width:100% !important;
             height: 100% !important;
@@ -64,55 +88,69 @@
                     <li class="luxbar-item">
                         <a @click="transPage('sell')">Sell</a>
                     </li>
-                    <li class="luxbar-item">
-                        <a @click="transPage('exchange')">Exchange</a>
-                    </li>
                 </ul>
             </div>
         </header>
 
         <div id="home" v-if="currentPage == 'home'">
-            <div class="ui container">
-                Home
+            <div class="ui inverted vertical masthead center aligned segment">
+                <div class="ui text container">
+                    <h1 class="ui inverted header">
+                        NFTS
+                    </h1>
+                    <h2>Verified NFT Market Place</h2>
+                </div>
             </div>
         </div>
+
         <div id="register" v-if="currentPage == 'register'">
-            <div class="ui container">
-                Register
+            <div class="ui container middle text">
+                <div class="ui segment">
+                    <form class="ui form" name="form">
+                        <h4 class="ui header">Your Information</h4>
+                        <div class="field">
+                            <input type="text" name="name" placeholder="Name">
+                        </div>
+                        <div class="field">
+                            <input type="text" name="phone" placeholder="Phone">
+                        </div>
+                        <div class="field">
+                            <div class="ui checkbox">
+                                <input type="checkbox" name="agree">
+                                <label>I agree to the terms of service</label>
+                            </div>
+                        </div>
+                        <div id="confirm" class="fluid ui teal button">Register</div>
+                    </form>
+
+                </div>
             </div>
         </div>
 
         <div id="publish" v-if="currentPage == 'publish'">
-            <div class="ui container">
-                <div class="ui segment publish_height">
-                    <div class="ui inverted dimmer">
-                        <div class="ui text loader">load</div>
-                    </div>
-                    <div class="wrap">
-                        <form class="ui form" name="form">
-                            <div class="field">
-                                <label>Image</label>
-                                <div class="">
-                                    <label for="publish" class="file">
-                                        <div class="image_box"><img src="" id="preview"><i id="camera" class="fas fa-camera img_text"></i></div>
-                                        <input type="file" id="publish" onchange="PreviewImage(this);" />
-                                    </label>
-                                </div>
+            <div class="ui container middle text">
+                <div class="ui segment">
+                    <h4 class="ui header">Please input your content detail</h4>
+                    <form class="ui form" name="form">
+                        <div class="field">
+                            <label for="publish" class="file">
+                                <input type="file" id="file" />
+                            </label>
+                        </div>
+                        <div class="field">
+                            <input type="text" name="title" id="title" placeholder="Title">
+                        </div>
+                        <div class="field">
+                            <textarea name="descripttion" id="descripttion" placeholder="Description"></textarea>
+                        </div>
+                        <div class="ui right labeled input field">
+                            <input type="text" name="price" id="price" placeholder="Price">
+                            <div class="ui basic label">
+                                ETH
                             </div>
-                            <div class="field">
-                                <label>Title</label>
-                                <input type="text" name="name" id="e_name" placeholder="">
-                            </div>
-                            <div class="ui right labeled input field">
-                                <input type="text" name="price" id="e_price" placeholder="Enter price...">
-                                <div class="ui basic label">
-                                    ETH
-                                </div>
-                            </div>
-                        </form>
+                        </div>
                         <div id="confirm" class="fluid ui teal button">Publish</div>
-                        <div class="fluid ui grey button">back</div>
-                    </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -140,24 +178,55 @@
                 <div class="ui two column stackable grid">
                     <div class="ui column">
                         <div class="image">
-                            <img :src="purchases[index].imageUrl">
+                            <img :src="sells[index].imageUrl">
                         </div>
                     </div>
                     <div class="ui column">
-                        <div class="container">
-                            <h2 class="ui header">
-                                {{purchases[index].name}}
-                            </h2>
-                            <p class="ui description">
-                                0.001 ETH
-                            </p>
-                            <div class="ui blue button">
-                                Purchase
+                        <div class="ui fluid card">
+                            <div class="content">
+                                <div class="header">{{purchases[index].name}}</div>
+                                <h4 class="ui sub header">ID:</h4>
+                                <div class="ui small feed">
+                                    <div class="event">
+                                        <div class="content">
+                                            <div class="summary">
+                                                <a>Elliot Fu</a> added <a>Jenny Hess</a> to the project
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="event">
+                                        <div class="content">
+                                            <div class="summary">
+                                                <a>Stevie Feliciano</a> was added as an <a>Administrator</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="event">
+                                        <div class="content">
+                                            <div class="summary">
+                                                <a>Helen Troy</a> added two pictures
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="extra content">
+                                <form class="ui form" name="form">
+
+                                    <div class="field">
+                                        1.5 ETH
+                                    </div>
+
+                                    <div class="field">
+                                        <button class="ui teal button">Purchase</button>
+                                    </div>
+                                </form>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+
         </div>
 
         <div id="sell" v-if="currentPage == 'sell'">
@@ -188,15 +257,46 @@
                         </div>
                     </div>
                     <div class="ui column">
-                        <div class="container">
-                            <h2 class="ui header">
-                                {{sells[index].name}}
-                            </h2>
-                            <p class="ui description">
-                                0.001 ETH
-                            </p>
-                            <div class="ui blue button">
-                                Sell
+                        <div class="ui fluid card">
+                            <div class="content">
+                                <div class="header">{{sells[index].name}}</div>
+                                <h4 class="ui sub header">ID:</h4>
+                                <div class="ui small feed">
+                                    <div class="event">
+                                        <div class="content">
+                                            <div class="summary">
+                                                <a>Elliot Fu</a> added <a>Jenny Hess</a> to the project
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="event">
+                                        <div class="content">
+                                            <div class="summary">
+                                                <a>Stevie Feliciano</a> was added as an <a>Administrator</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="event">
+                                        <div class="content">
+                                            <div class="summary">
+                                                <a>Helen Troy</a> added two pictures
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="extra content">
+                                <form class="ui form" name="form">
+                                    <div class="ui right labeled input field">
+                                        <input type="text" name="price" id="price" placeholder="Price">
+                                        <div class="ui basic label">
+                                            ETH
+                                        </div>
+                                    </div>
+                                    <div class="field">
+                                        <button class="ui teal button">Sell</button>
+                                    </div>
+                                </form>
                             </div>
                         </div>
                     </div>
