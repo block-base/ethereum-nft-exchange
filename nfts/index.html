@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.10/css/all.css">
+    <link rel="stylesheet" href="https://cdn.rawgit.com/balzss/luxbar/ae5835e2/build/luxbar.min.css">
+    <link rel="stylesheet" href="./semantic/semantic.min.css" />
+
+    <style>
+        .ui.container {
+            padding-top: 80px;
+            padding-bottom: 80px;
+        }
+
+        #purchase .image {
+            height: 25vh;
+        }
+
+        #purchase-detail .image {
+            height: 60vh;
+        }     
+          
+        #sell .image {
+            height: 25vh;
+        }
+
+        #sell-detail .image {
+            height: 60vh;
+        }     
+          
+        img {
+            width:100% !important;
+            height: 100% !important;
+            object-fit: cover;
+        }
+
+        .modal {
+            position: absolute;
+            width: 100%;
+            height: 100vh;
+            top: 0;
+            left: 0;
+            display: none;
+        }
+
+        .overLay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: black;
+            opacity: 0.8;
+            width: 100%;
+            height: 100vh;
+            z-index: 10;
+        }
+   
+        .dropzone-wrapper {
+            border: 2px dashed #91b0b3;
+            color: #92b0b3;
+            position: relative;
+            height: 150px;
+        }
+
+        .dropzone-desc {
+            position: absolute;
+            margin: 0 auto;
+            left: 0;
+            right: 0;
+            text-align: center;
+            width: 100%;
+            top: 50px;
+            font-size: 16px;
+        }
+
+        .dropzone,
+        .dropzone:focus {
+            position: absolute;
+            outline: none !important;
+            width: 100%;
+            height: 150px;
+            cursor: pointer;
+            opacity: 0;
+        }
+        .dropzone-wrapper:hover,
+        .dropzone-wrapper.dragover {
+            background: #ecf0f5;
+        }
+
+    </style>
+    <title>NFTS</title>
+</head>
+
+<body>
+
+    <div id="app">
+        <header id="luxbar" class="luxbar-fixed">
+            <input type="checkbox" class="luxbar-checkbox" id="luxbar-checkbox" />
+            <div class="luxbar-menu luxbar-menu-right luxbar-menu-material-cyan">
+                <ul class="luxbar-navigation">
+                    <li class="luxbar-header">
+                        <a @click="transPage('home')" class="luxbar-brand">NFTS</a>
+                        <label class="luxbar-hamburger luxbar-hamburger-doublespin" id="luxbar-hamburger" for="luxbar-checkbox">
+                            <span></span> </label>
+                    </li>
+                    <li class="luxbar-item">
+                        <a @click="transPage('register')">Register</a>
+                    </li>
+                    <li class="luxbar-item">
+                        <a @click="transPage('publish')">Publish</a>
+                    </li>
+                    <li class="luxbar-item">
+                        <a @click="transPage('purchase')">Purchase</a>
+                    </li>
+                    <li class="luxbar-item">
+                        <a @click="transPage('sell')">Sell</a>
+                    </li>
+                    <li class="luxbar-item">
+                        <a @click="transPage('exchange')">Exchange</a>
+                    </li>
+                </ul>
+            </div>
+        </header>
+
+        <div id="home" v-if="currentPage == 'home'">
+            <div class="ui container">
+                Home
+            </div>
+        </div>
+        <div id="register" v-if="currentPage == 'register'">
+            <div class="ui container">
+                Register
+            </div>
+        </div>
+
+        <div id="publish" v-if="currentPage == 'publish'">
+
+            <div class="ui container">
+                <div class="modal" id="modal">
+                    <div class="overLay"></div>
+                    <div class="inner" id="preview">
+                    </div>
+                </div>
+
+
+                <div class="container">
+
+                    <div class="dropzone-wrapper">
+                        <div class="dropzone-desc">
+                            <i class="ui upload icon"></i>
+                            <p>Select or Drop image file</p>
+                        </div>
+                        <input type="file" class="dropzone" id="publish" accept="image/*">
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div id="purchase" v-if="currentPage == 'purchase'">
+            <div class="ui container">
+                <div class="ui four stackable doubling cards">
+                    <a class="ui card" v-for="purchase in purchases" @click="transPage('purchase-detail', purchase.index)">
+                        <div class="image">
+                            <img :src="purchase.imageUrl">
+                        </div>
+                        <div class="content">
+                            <div class="header">Theming</div>
+                            <div class="description">
+                                Examples of many common UI components.
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div id="purchase-detail" v-if="currentPage == 'purchase-detail'">
+            <div class="ui container">
+                <div class="ui two column stackable grid">
+                    <div class="ui column">
+                        <div class="image">
+                            <img :src="purchases[index].imageUrl">
+                        </div>
+                    </div>
+                    <div class="ui column">
+                        <div class="container">
+                            <h2 class="ui header">
+                                {{purchases[index].name}}
+                            </h2>
+                            <p class="ui description">
+                                0.001 ETH
+                            </p>
+                            <div class="ui blue button">
+                                Purchase
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="sell" v-if="currentPage == 'sell'">
+            <div class="ui container">
+                <div class="ui four stackable doubling cards">
+                    <a class="ui card" v-for="sell in sells" @click="transPage('sell-detail', sell.index)">
+                        <div class="image">
+                            <img :src="sell.imageUrl">
+                        </div>
+                        <div class="content">
+                            <div class="header">Theming</div>
+                            <div class="description">
+                                Examples of many common UI components.
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+            </div>
+        </div>
+
+        <div id="sell-detail" v-if="currentPage == 'sell-detail'">
+            <div class="ui container">
+                <div class="ui two column stackable grid">
+                    <div class="ui column">
+                        <div class="image">
+                            <img :src="sells[index].imageUrl">
+                        </div>
+                    </div>
+                    <div class="ui column">
+                        <div class="container">
+                            <h2 class="ui header">
+                                {{sells[index].name}}
+                            </h2>
+                            <p class="ui description">
+                                0.001 ETH
+                            </p>
+                            <div class="ui blue button">
+                                Sell
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="exchange" v-if="currentPage == 'exchange'">
+            <div class="ui container">
+                Exchange
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://unpkg.com/vue/dist/vue.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script src="./semantic/semantic.min.js"></script>
+    <script>
+        var app = new Vue({
+            el: '#app',
+            data() {
+                return {
+
+                    purchases: [],
+                    sells: [],
+
+                    currentPage: 'home',
+                }
+            },
+            methods: {
+                transPage: function (page, index) {
+                    this.currentPage = page;
+                    this.index = index - 1;
+                }
+            },
+            mounted() {
+                axios
+                    .get('https://ethereum-nft-exchange.glitch.me/dac')
+                    .then(response => (
+                        this.purchases = response.data,
+                        this.sells = response.data
+                    ))
+            }
+        })
+
+/*
+
+        function readFile(input) {
+            $("#upload").prop("disabled", true);
+            $("#modal01").fadeIn();
+        }
+
+
+
+        $('.dropzone-wrapper').on('dragover', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $(this).addClass('dragover');
+        });
+
+        $('.dropzone-wrapper').on('dragleave', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            $(this).removeClass('dragover');
+        });
+
+        $(".dropzone").change(function () {
+            readFile(this);
+        });
+
+        $(".dropzone").change(function () {
+            console.log("test")
+            readFile(this);
+        });        
+
+
+*/
+    </script>
+</body>
+
+</html>
