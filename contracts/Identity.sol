@@ -12,5 +12,4 @@ contract Identity is ClaimHolder {
     {   
         V00_UserRegistry(_registry).registerUser();
     }
-
 }

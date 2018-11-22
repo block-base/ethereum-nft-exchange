@@ -30,6 +30,7 @@ module.exports = async function (deployer) {
                 await deployer.deploy(Integration, v00_UserRegistry.address, claimHolder.address);
                 var integration = await Integration.deployed();
 
+                /*
                 await integration.mint("1", "test1", "Qmaurc3QCxriNbozR5LPQ3aJHd4qrbjiVxvvoLJtj8AeNQ", 100)
                 await integration.mint("2", "test2", "QmWMSuErBER8n2maYFdM74XaFHMt4xNKR3crhsgkYzXVLv", 100)
                 await integration.mint("3", "test3", "QmUJPnD1hC9MDp1NCS1vrwuXbjJhyRKExsTP1sPtjgfmbF", 100)
@@ -38,6 +39,7 @@ module.exports = async function (deployer) {
                 await integration.mint("6", "test6", "QmXXjXomp6zRSn23yXZkTCFVkF6h4UyS1Yvmpao5dawnL1", 100)
                 await integration.mint("7", "test7", "Qmf1bp57pFNtdKLjyrGaQMybjapbLWR2KzGezdZzySWE5w", 100)
                 await integration.mint("8", "test8", "QmTk8BhgE3WaeBE7aD7DWy7VmjbKuSiJFaj9kQLjrPdjot", 100)
+                */
 
         });
     });

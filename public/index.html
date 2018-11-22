@@ -11,7 +11,7 @@
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="NFTS" />
     <meta name="twitter:description" content="Verified NFT Market Place" />
-    <meta name="twitter:image" content="screen.png">    
+    <meta name="twitter:image" content="https://raw.githubusercontent.com/block-base/ethereum-nft-exchange/master/nfts/screen.png">
 
     <title>NFTS</title>
 
@@ -30,7 +30,6 @@
         }
 
         .masthead h1.ui.header {
-            margin-top: 22vh;
             font-size: 4em;
             font-weight: normal;
         }
@@ -105,23 +104,23 @@
         <div id="register" v-if="currentPage == 'register'">
             <div class="ui container middle text">
                 <div class="ui segment">
-                    <form class="ui form" name="form">
-                        <h4 class="ui header">Your Information</h4>
-                        <div class="field">
-                            <input type="text" name="name" placeholder="Name">
-                        </div>
-                        <div class="field">
-                            <input type="text" name="phone" placeholder="Phone">
-                        </div>
-                        <div class="field">
-                            <div class="ui checkbox">
-                                <input type="checkbox" name="agree">
-                                <label>I agree to the terms of service</label>
-                            </div>
-                        </div>
-                        <div id="confirm" class="fluid ui teal button" @click="register()">Register</div>
-                    </form>
 
+                    <div id="deploy" style="display:none">
+                        <form class="ui form" name="form">
+                            <h4 class="ui header">Deploy Your Identity</h4>
+                            <div id="confirm" class="fluid ui teal button" @click="deploy()">Deploy</div>
+                        </form>
+                    </div>
+
+                    <div id="verify" style="display:none">
+                        <form class="ui form" name="form">
+                            <h4 class="ui header">Your Information</h4>
+                            <div class="field">
+                                <input type="text" name="name" id="name" placeholder="Name">
+                            </div>
+                            <div id="confirm" class="fluid ui teal button" @click="register()">Register</div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>
@@ -263,7 +262,7 @@
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
     <script src="./semantic/semantic.min.js"></script>
-    <script src="./js/web3.min.js"></script>　
+    <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js/dist/web3.min.js"></script>
     <script src="./js/contract.js"></script>　
     <script src="./js/buffer.js"></script>　
     <script src="./js/ipfs.js"></script>　
@@ -272,20 +271,35 @@
 
         var userAccount;
         var contract;
+        var registry;
+        var identity;
+        var identityBytesCode;
         var hash;
 
         var ipfs = window.IpfsApi({ host: 'ipfs.infura.io', protocol: 'https' });
 
         window.addEventListener('load', function () {
+
             if (typeof web3 !== 'undefined') {
                 web3js = new Web3(web3.currentProvider);
-                contract = new web3js.eth.Contract(contentABI, contentAddress);
+
+                content = web3js.eth.contract(contentABI);
+                contract = content.at(contentAddress);
+
+                registryContract = web3js.eth.contract(registryABI);
+                registry = registryContract.at(userRegistry);
+
+                $.getJSON('../contracts/Identity.json').then(function (data) {
+                    identityABI = data.abi;
+                    identityBytesCode = data.bytecode;
+                    identity = web3js.eth.contract(identityABI);
+                });
 
                 var accountInterval = setInterval(function () {
                     web3.eth.getAccounts((error, accounts) => {
                         if (accounts[0] !== userAccount) {
                             userAccount = accounts[0];
-
+                            displayIdentity()
                         }
                     });
                 }, 100);
@@ -319,57 +333,82 @@
             })
         }
 
+        async function _deploy() {
+            identity.new(userRegistry, { data: identityBytesCode }, function (err, myContract) {
+                if (!err) {
+                    if (!myContract.address) {
+                        console.log(myContract.transactionHash)
+                    } else {
+                        //displayIdentity();
+
+                    }
+                }
+            })
+        }
+
+        async function _register(name) {
+
+            registry.users(userAccount, function (err, result) {
+                axios.get('https://smartcontents.glitch.me/register?identity=' + result + '&name=' + name).then(function (response) {
+                    sig = response.data.sig
+                    data = response.data.data
+
+                    var identityInstance = identity.at(result);
+                    identityInstance.addClaim(
+                        1,
+                        0,
+                        claimHolder,
+                        sig,
+                        data,
+                        ""
+                        ,
+                        function (err, result) {
+                            if (!err) {
+                                console.log(result);
+                            }
+                        });
+
+                })
+            });
+        }
+
         async function _publish(title, desc, content, price) {
 
-            contract.methods.mint(title, desc, content, price)
-                .send({ from: userAccount })
-                .on("transactionHash", function (txhash) {
-                    console.log(txhash)
-                })
-                .on("receipt", function (receipt) {
-                    //Process when transaction is confirmed
-                    console.log(receipt)
-                })
-                .on("error", function (error) {
-                    //Process when transaction is failed
-                    console.log(error)
-                });
+            contract.mint(title, desc, content, price, function (err, result) {
+                if (!err) {
+                    console.log(result);
+                }
+            })
 
         }
 
         async function _purchase(id, price) {
-
-            contract.methods.purchase(id)
-                .send({ from: userAccount, value: price })
-                .on("transactionHash", function (txhash) {
-                    console.log(txhash)
-                })
-                .on("receipt", function (receipt) {
-                    //Process when transaction is confirmed
-                    console.log(receipt)
-                })
-                .on("error", function (error) {
-                    //Process when transaction is failed
-                    console.log(error)
-                });
+            contract.purchase(id, { value: price }, function (err, result) {
+                if (!err) {
+                    console.log(result);
+                }
+            })
         }
 
         async function _sell(id, price) {
+            contract.sell(id, price, function (err, result) {
+                if (!err) {
+                    console.log(result);
+                }
+            });
 
-            contract.methods.sell(id, price)
-                .send({ from: userAccount })
-                .on("transactionHash", function (txhash) {
-                    console.log(txhash)
-                })
-                .on("receipt", function (receipt) {
-                    //Process when transaction is confirmed
-                    console.log(receipt)
-                })
-                .on("error", function (error) {
-                    //Process when transaction is failed
-                    console.log(error)
-                });
+        }
 
+        function displayIdentity() {
+            registry.users(userAccount, function (err, result) {
+                if (result != 0x0) {
+                    $('#deploy').hide();
+                    $('#verify').show();
+                } else {
+                    $('#deploy').show();
+                    $('#verify').hide();
+                }
+            });
         }
 
         var app = new Vue({
@@ -385,10 +424,16 @@
                 transPage: function (page, index) {
                     this.currentPage = page;
                     this.index = index;
+
+                    if (page == "register") {
+                        displayIdentity()
+                    }
+
                 },
 
                 register: function register() {
-                    console.log("register")
+                    var name = $("#name").val();
+                    _register(name);
                 },
 
                 readFile: async function readFile(input) {
@@ -403,7 +448,7 @@
                     var title = $("#title").val();
                     var desc = $("#description").val();
 
-                    price = web3js.utils.toWei(price);
+                    price = web3js.toWei(price);
                     _publish(title, desc, hash, price)
 
                 },
@@ -412,9 +457,13 @@
                     _purchase(id, price);
                 },
 
+                deploy: function deploy() {
+                    _deploy();
+                },
+
                 sell: function sell(id) {
                     var price = $("#price_sell").val();
-                    price = web3js.utils.toWei(price);
+                    price = web3js.toWei(price);
 
                     _sell(id, price);
                 }

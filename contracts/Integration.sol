@@ -31,8 +31,8 @@ contract Integration is ERC721Full, ClaimVerifier {
     mapping(uint => Exchange) public exchanges;
 
     Token[] public tokens;
-    V00_UserRegistry userRegistry;
-    SmartMarket smartMarket;
+    V00_UserRegistry public userRegistry;
+    SmartMarket public smartMarket;
 
     string public tokenURIPrefix = "https://smartcontents.glitch.me/token?id=";
     uint128 public mintingFee = 0 ether;
@@ -116,7 +116,7 @@ contract Integration is ERC721Full, ClaimVerifier {
 
     function request(uint _fromId, uint _toId) public {
         require(!exchanges[_fromId].exist); 
-        require(checkClaim(ClaimHolder(userRegistry.users(msg.sender)),2));
+        require(checkClaim(ClaimHolder(userRegistry.users(msg.sender)),1));
 
         Exchange memory _exchange = Exchange(msg.sender, _toId, true);
         exchanges[_fromId] = _exchange;
@@ -135,7 +135,7 @@ contract Integration is ERC721Full, ClaimVerifier {
 
     function confirm(uint256 _fromId) public {
         require(exchanges[_fromId].exist); 
-        require(checkClaim(ClaimHolder(userRegistry.users(msg.sender)),2));
+        require(checkClaim(ClaimHolder(userRegistry.users(msg.sender)),1));
         
         Exchange memory _exchange = exchanges[_fromId];
         transferFrom(msg.sender, _exchange.requester, _exchange.tokenId);

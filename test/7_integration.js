@@ -73,7 +73,7 @@ contract('Integration', async function (accounts) {
         var identity = await Identity.at(user);
         var issuer = await ClaimHolder.deployed();
 
-        var claimType = 2;
+        var claimType = 1;
         var rawData = "Verified OK";
         var hexData = web3Utils.asciiToHex(rawData)
 
@@ -110,7 +110,7 @@ contract('Integration', async function (accounts) {
         var identity = await Identity.at(user);
         var issuer = await ClaimHolder.deployed();
 
-        var claimType = 2;
+        var claimType = 1;
         var rawData = "Verified OK";
         var hexData = web3Utils.asciiToHex(rawData)
 
@@ -144,7 +144,7 @@ contract('Integration', async function (accounts) {
 
         integration = await Integration.deployed();
         var hash = wallet.getPrivateKeyString();
-        await integration.mint(hash, PRICE);
+        await integration.mint("t1","test1",hash, PRICE);
 
         ID1 = await integration.getContentToTokenId(hash);
         assert.equal(await integration.ownerOf(ID1), integration.address);
@@ -178,7 +178,7 @@ contract('Integration', async function (accounts) {
 
         integration = await Integration.deployed();
         var hash = wallet.getPrivateKeyString();
-        await integration.mint(hash, PRICE);
+        await integration.mint("t2","test2",hash, PRICE);
         ID2 = await integration.getContentToTokenId(hash);
         assert.equal(await integration.ownerOf(ID2), integration.address);
 

@@ -2,7 +2,9 @@
 
 
 //Rinkeby address
-var contentAddress = "0x63e8784a42e82b99b17e8b8b8eb2f72a97d986b1";
+var contentAddress = "0x9e513db79f70bddf339864d00658452bad3c5577";
+var userRegistry = "0x7b0ee1198a2614b81d96d726cdbc47a17db99e99";
+var claimHolder = "0x2396027a5f7d7909d41b615ed1a351b289ba8eb1";
 
 var contentABI = [
     {
@@ -860,6 +862,63 @@ var contentABI = [
       ],
       "payable": false,
       "stateMutability": "view",
+      "type": "function"
+    }
+  ]
+
+  var registryABI = [
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "name": "users",
+      "outputs": [
+        {
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "name": "_address",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "name": "_identity",
+          "type": "address"
+        }
+      ],
+      "name": "NewUser",
+      "type": "event"
+    },
+    {
+      "constant": false,
+      "inputs": [],
+      "name": "registerUser",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "constant": false,
+      "inputs": [],
+      "name": "clearUser",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
       "type": "function"
     }
   ]

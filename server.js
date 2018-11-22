@@ -11,7 +11,7 @@ var bodyParser = require('body-parser');
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 
-app.use(express.static('nfts'));
+app.use(express.static('public'));
 
 app.use(function (req, res, next) {
   if (!req.xhr) {
