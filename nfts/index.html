@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.10/css/all.css">
     <link rel="stylesheet" href="https://cdn.rawgit.com/balzss/luxbar/ae5835e2/build/luxbar.min.css">
     <link rel="stylesheet" href="./semantic/semantic.min.css" />
-
     <style>
 
         .ui.container {
@@ -21,6 +20,7 @@
         }
 
         .masthead h1.ui.header {
+            margin-top: 22vh;
             font-size: 4em;
             font-weight: normal;
         }
@@ -45,7 +45,6 @@
             height: 50vh;
         }     
      
-
         img {
             width:100% !important;
             height: 100% !important;
@@ -125,22 +124,24 @@
                     <form class="ui form" name="form">
                         <div class="field">
                             <label for="publish" class="file">
-                                <input type="file" id="file" />
+                                <input type="file" id="file" @change="readFile(this)" />
                             </label>
                         </div>
                         <div class="field">
                             <input type="text" name="title" id="title" placeholder="Title">
                         </div>
                         <div class="field">
-                            <textarea name="descripttion" id="descripttion" placeholder="Description"></textarea>
+                            <textarea name="descripttion" id="description" placeholder="Description"></textarea>
                         </div>
-                        <div class="ui right labeled input field">
-                            <input type="text" name="price" id="price" placeholder="Price">
-                            <div class="ui basic label">
-                                ETH
+                        <div class="field">
+                            <div class="ui right labeled input field">
+                                <input type="text" name="price" id="price_publish" placeholder="Price">
+                                <div class="ui basic label">
+                                    ETH
+                                </div>
                             </div>
                         </div>
-                        <div id="confirm" class="fluid ui teal button" @click="publish()">Publish</div>
+                        <div id="confirm" class="fluid ui teal button disabled" @click="publish()">Publish</div>
                     </form>
                 </div>
             </div>
@@ -163,7 +164,7 @@
                 <div class="ui two column stackable grid">
                     <div class="ui column">
                         <div class="image">
-                            <img :src="sells[index].image">
+                            <img :src="purchases[index].image">
                         </div>
                     </div>
                     <div class="ui column">
@@ -179,10 +180,10 @@
                             <div class="extra content">
                                 <form class="ui form" name="form">
                                     <div class="field">
-                                        {{purchases[index].price}} ETH
+                                        {{purchases[index].eth}} ETH
                                     </div>
                                     <div class="field">
-                                        <button class="ui teal button" type="button" @click="purchase(purchases[index].id)">Purchase</button>
+                                        <button class="ui teal button" type="button" @click="purchase(purchases[index].id, purchases[index].price)">Purchase</button>
                                     </div>
                                 </form>
                             </div>
@@ -190,7 +191,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
 
         <div id="sell" v-if="currentPage == 'sell'">
@@ -226,7 +226,7 @@
                             <div class="extra content">
                                 <form class="ui form" name="form">
                                     <div class="ui right labeled input field">
-                                        <input type="text" name="price" id="price" placeholder="Price">
+                                        <input type="text" name="price" id="price_sell" placeholder="Price">
                                         <div class="ui basic label">
                                             ETH
                                         </div>
@@ -254,18 +254,121 @@
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
     <script src="./semantic/semantic.min.js"></script>
-　   
+    <script src="./js/web3.min.js"></script>　
+    <script src="./js/contract.js"></script>　
+    <script src="./js/buffer.js"></script>　
+    <script src="./js/ipfs.js"></script>　
 
     <script>
+
+        var userAccount;
+        var contract;
+        var hash;
+
+        var ipfs = window.IpfsApi({ host: 'ipfs.infura.io', protocol: 'https' });
+
+        window.addEventListener('load', function () {
+            if (typeof web3 !== 'undefined') {
+                web3js = new Web3(web3.currentProvider);
+                contract = new web3js.eth.Contract(contentABI, contentAddress);
+
+                var accountInterval = setInterval(function () {
+                    web3.eth.getAccounts((error, accounts) => {
+                        if (accounts[0] !== userAccount) {
+                            userAccount = accounts[0];
+
+                        }
+                    });
+                }, 100);
+            }
+        })
+
+        function _readFile(input) {
+            return new Promise(resolve => {
+
+                var content = document.getElementById("file");
+                var idxDot = content.value.lastIndexOf(".") + 1;
+                var extFile = content.value.substr(idxDot, content.value.length).toLowerCase();
+                if (extFile == "jpeg" || extFile == "png" || extFile == "jpg" || extFile == "gif") {
+                    var reader = new FileReader();
+                    reader.readAsArrayBuffer(content.files[0]);
+                    reader.onloadend = function (event) {
+                        var buf = buffer.Buffer(reader.result)
+                        ipfs.add(buf, (err, result) => {
+                            imageHash = result[0].hash;
+                            var url = imageHash;
+                            console.log(url);
+                            resolve(imageHash)
+                        });
+                    }
+
+                } else {
+                    alert("Only jpeg/gif/png files are allowed!");
+                    $('.segment').dimmer('hide');
+                }
+
+            })
+        }
+
+        async function _publish(title, desc, content, price) {
+
+            contract.methods.mint(title, desc, content, price)
+                .send({ from: userAccount })
+                .on("transactionHash", function (txhash) {
+                    console.log(txhash)
+                })
+                .on("receipt", function (receipt) {
+                    //Process when transaction is confirmed
+                    console.log(receipt)
+                })
+                .on("error", function (error) {
+                    //Process when transaction is failed
+                    console.log(error)
+                });
+
+        }
+
+        async function _purchase(id, price) {
+
+            contract.methods.purchase(id)
+                .send({ from: userAccount, value: price })
+                .on("transactionHash", function (txhash) {
+                    console.log(txhash)
+                })
+                .on("receipt", function (receipt) {
+                    //Process when transaction is confirmed
+                    console.log(receipt)
+                })
+                .on("error", function (error) {
+                    //Process when transaction is failed
+                    console.log(error)
+                });
+        }
+
+        async function _sell(id, price) {
+
+            contract.methods.sell(id, price)
+                .send({ from: userAccount })
+                .on("transactionHash", function (txhash) {
+                    console.log(txhash)
+                })
+                .on("receipt", function (receipt) {
+                    //Process when transaction is confirmed
+                    console.log(receipt)
+                })
+                .on("error", function (error) {
+                    //Process when transaction is failed
+                    console.log(error)
+                });
+
+        }
 
         var app = new Vue({
             el: '#app',
             data() {
                 return {
-
                     purchases: [],
                     sells: [],
-
                     currentPage: 'home',
                 }
             },
@@ -279,30 +382,53 @@
                     console.log("register")
                 },
 
-                publish: function publish() {
-                    console.log("publish")
+                readFile: async function readFile(input) {
+                    $("#confirm").addClass("disabled");
+                    hash = await _readFile(input)
+                    $("#confirm").removeClass("disabled");
                 },
 
-                purchase: function purchase(id) {
-                    console.log("purchase: " + id)
+                publish: async function publish() {
+
+                    var price = $("#price_publish").val();
+                    var title = $("#title").val();
+                    var desc = $("#description").val();
+
+                    price = web3js.utils.toWei(price);
+                    _publish(title, desc, hash, price)
+
+                },
+
+                purchase: function purchase(id, price) {
+                    _purchase(id, price);
                 },
 
                 sell: function sell(id) {
-                    console.log("sell: " + id)
+                    var price = $("#price_sell").val();
+                    price = web3js.utils.toWei(price);
+
+                    _sell(id, price);
                 }
 
             },
+
             mounted() {
-                axios
-                    .get('https://smartcontents.glitch.me/market')
-                    .then(response => (
-                        this.purchases = response.data,
-                        this.sells = response.data
-                    ))
+                axios.get('https://smartcontents.glitch.me/market').then(response => (
+                    this.purchases = response.data
+                ))
+
+                web3.eth.getAccounts((error, accounts) => {
+                    if (accounts[0] !== userAccount) {
+                        userAccount = accounts[0];
+
+                        axios.get('https://smartcontents.glitch.me/ownedTokens?address=' + userAccount).then(response => (
+                            this.sells = response.data
+                        ))
+
+                    }
+                });
             }
         })
-
-
 
     </script>
 </body>

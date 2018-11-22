@@ -63,7 +63,7 @@ contract Integration is ERC721Full, ClaimVerifier {
     function mint(string _title, string _description, string _content, uint128 _price) public payable {
         require(msg.value == mintingFee);
         require(contentToTokenId[_content] == 0);
-        //require(checkClaim(ClaimHolder(userRegistry.users(msg.sender)),1));
+        require(checkClaim(ClaimHolder(userRegistry.users(msg.sender)),1));
 
         Token memory _token = Token({title: _title, description:_description, content: _content, publisher: msg.sender});
 
@@ -79,7 +79,7 @@ contract Integration is ERC721Full, ClaimVerifier {
 
     function sell(uint _tokenId, uint128 _price) public {
         require(!markets[_tokenId].exist);
-        require(checkClaim(ClaimHolder(userRegistry.users(msg.sender)),2));
+        require(checkClaim(ClaimHolder(userRegistry.users(msg.sender)),1));
 
         Market memory _market = Market(msg.sender, _price, true);
         markets[_tokenId] = _market;
@@ -101,7 +101,7 @@ contract Integration is ERC721Full, ClaimVerifier {
         require(markets[_tokenId].exist);
         require(markets[_tokenId].seller != msg.sender);
         require(markets[_tokenId].price == msg.value);
-        require(checkClaim(ClaimHolder(userRegistry.users(msg.sender)),2));
+        require(checkClaim(ClaimHolder(userRegistry.users(msg.sender)),1));
       
         Market memory _market = markets[_tokenId];
         delete markets[_tokenId];
@@ -147,8 +147,6 @@ contract Integration is ERC721Full, ClaimVerifier {
     function ownedTokens(address _address) public returns (uint[]) {
         return _ownedTokens[_address];
     }
-
-
 
     function tokenURI(uint _tokenId) external view returns (string) {
         bytes32 tokenIdBytes;
